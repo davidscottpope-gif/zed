@@ -529,6 +529,7 @@ impl EditorElement {
                         editor.update(cx, |editor, cx| {
                             let line_height = position_map.line_height;
                             let glyph_width = position_map.em_layout_width;
+                            let is_line_scroll = matches!(delta, gpui::ScrollDelta::Lines(_));
                             let delta = match delta {
                                 gpui::ScrollDelta::Pixels(mut pixels) => {
                                     //Trackpad
@@ -544,7 +545,7 @@ impl EditorElement {
                                 }
                             };
 
-                            let current_scroll_position = position_map.snapshot.scroll_position();
+                            let current_scroll_position = editor.scroll_position(cx);
                             let x = (current_scroll_position.x
                                 * ScrollPixelOffset::from(glyph_width)
                                 - ScrollPixelOffset::from(delta.x * scroll_sensitivity))
@@ -562,7 +563,11 @@ impl EditorElement {
                             }
 
                             if scroll_position != current_scroll_position {
-                                editor.scroll(scroll_position, window, cx);
+                                if is_line_scroll {
+                                    editor.scroll_discretely(scroll_position, window, cx);
+                                } else {
+                                    editor.scroll(scroll_position, window, cx);
+                                }
                                 cx.stop_propagation();
                             }
                         });

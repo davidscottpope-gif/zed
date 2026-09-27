@@ -1,7 +1,7 @@
 use crate::{
     Autoscroll, Editor, EditorMode, NextScreen, NextScrollCursorCenterTopBottom,
     SCROLL_CENTER_TOP_BOTTOM_DEBOUNCE_TIMEOUT, ScrollCursorBottom, ScrollCursorCenter,
-    ScrollCursorCenterTopBottom, ScrollCursorTop, display_map::DisplayRow, scroll::ScrollOffset,
+    ScrollCursorCenterTopBottom, ScrollCursorTop, scroll::ScrollOffset,
 };
 use gpui::{Context, Point, Window};
 
@@ -87,7 +87,8 @@ impl Editor {
         // we need to adjust the scroll top a bit further
         let adjustment = scroll_margin_rows.max(sticky_headers_len) + header_offset;
         let new_screen_top = new_screen_top.saturating_sub(adjustment);
-        self.set_scroll_top_row(DisplayRow(new_screen_top), window, cx);
+        let current = self.scroll_position(cx);
+        self.scroll_discretely(Point::new(current.x, f64::from(new_screen_top)), window, cx);
     }
 
     pub fn scroll_cursor_center(
@@ -106,7 +107,8 @@ impl Editor {
             .row()
             .0;
         let new_screen_top = new_screen_top.saturating_sub(visible_rows / 2);
-        self.set_scroll_top_row(DisplayRow(new_screen_top), window, cx);
+        let current = self.scroll_position(cx);
+        self.scroll_discretely(Point::new(current.x, f64::from(new_screen_top)), window, cx);
     }
 
     pub fn scroll_cursor_bottom(
@@ -127,6 +129,7 @@ impl Editor {
             .0;
         let new_screen_top =
             new_screen_top.saturating_sub(visible_rows.saturating_sub(scroll_margin_rows));
-        self.set_scroll_top_row(DisplayRow(new_screen_top), window, cx);
+        let current = self.scroll_position(cx);
+        self.scroll_discretely(Point::new(current.x, f64::from(new_screen_top)), window, cx);
     }
 }
