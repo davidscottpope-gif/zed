@@ -274,6 +274,7 @@ impl VsCodeSettings {
                 _ => None,
             }),
             cursor_animation: None,
+            smooth_scrolling: None,
             current_line_highlight: self.read_enum("editor.renderLineHighlight", |s| match s {
                 "gutter" => Some(CurrentLineHighlight::Gutter),
                 "line" => Some(CurrentLineHighlight::Line),
